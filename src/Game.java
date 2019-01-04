@@ -10,6 +10,7 @@ public class Game {
 	private int minimaxDepth = 3;
 	private boolean aiStarts = true; // AI makes the first move
 	private Minimax ai;
+	private Minimax ai_o;
 	public static final String cacheFile = "score_cache.ser";
 	private int winner; // 0: There is no winner yet, 1: AI Wins, 2: Human Wins
 	
@@ -17,7 +18,7 @@ public class Game {
 	public Game(Board board) {
 		this.board = board;
 		ai = new Minimax(board);
-		
+		ai_o = new Minimax(board);
 		winner = 0;
 	}
 	/*
@@ -83,66 +84,78 @@ public class Game {
 		}
 		public void run() {
 			if(gameFinished) return;
-			
+
 			// Find out which cell of the board do the clicked coordinates belong to.
-			 
+
 			int posX = board.getRelativePos( e.getX() );
 			int posY = board.getRelativePos( e.getY() );
-			
+
 			// Place a black stone to that cell.
 			if(!playMove(posX, posY, true)) {
 				// If the cell is already populated, do nothing.
 				isPlayersTurn = true;
 				return;
 			}
-			
+
+//			int[] aiMove_o = ai_o.calculateNextMove(minimaxDepth);
+//			if(aiMove_o == null) {
+//				System.out.println("No possible moves left. Game Over.");
+//				board.printWinner(0); // Prints "TIED!"
+//				gameFinished = true;
+//				return;
+//			}
+//			// Place a black stone to the found cell.
+//			playMove(aiMove_o[1], aiMove_o[0], true);
+
 			// Check if the last move ends the game.
 			winner = checkWinner();
-			
+
 			if(winner == 2) {
 				System.out.println("Player WON!");
 				board.printWinner(winner);
 				gameFinished = true;
 				return;
 			}
-			
+
 			// Make the AI instance calculate a move.
 			int[] aiMove = ai.calculateNextMove(minimaxDepth);
-			
+
 			if(aiMove == null) {
 				System.out.println("No possible moves left. Game Over.");
 				board.printWinner(0); // Prints "TIED!"
 				gameFinished = true;
 				return;
 			}
-			
-			
+
+
 			// Place a black stone to the found cell.
 			playMove(aiMove[1], aiMove[0], false);
-			
+
 			System.out.println("Black: " + Minimax.getScore(board,true,true) + " White: " + Minimax.getScore(board,false,true));
-			
+
 			winner = checkWinner();
-			
+
 			if(winner == 1) {
 				System.out.println("AI WON!");
 				board.printWinner(winner);
 				gameFinished = true;
 				return;
 			}
-			
+
 			if(board.generateMoves().size() == 0) {
 				System.out.println("No possible moves left. Game Over.");
 				board.printWinner(0); // Prints "TIED!"
 				gameFinished = true;
 				return;
-				
+
 			}
-			
+
 			isPlayersTurn = true;
 		}
-		
+
 	}
+
+
 	private int checkWinner() {
 		if(Minimax.getScore(board, true, false) >= Minimax.getWinScore()) return 2;
 		if(Minimax.getScore(board, false, true) >= Minimax.getWinScore()) return 1;
